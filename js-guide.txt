@@ -1,0 +1,10 @@
+// Control flow and error handling /////////////////////////////////////////////
+
+
+
+// Grammar and types ///////////////////////////////////////////////////////////
+
+data type conversion:
+- JS is a dynamically typed language .. dont have to specify data type of variable when declared & data types are converted automatically as needed during script execution
+
+

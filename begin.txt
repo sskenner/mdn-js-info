@@ -1,0 +1,56 @@
+- what exactly do I want to accomplish?
+- how will a website help me reach my goals?
+- what needs to be done, and in which order..?
+
+--
+project
+  ideation - the creative process of generating, developing and communicating new ideas, where an idea is understood as a basic element of thought that can be either visual, concrete, or abstract.
+
+  planning - the part of project management, which relates to the use of schedules such as gantt charts to plan and subsequently report progress w/in the project environment.
+
+  management - the process and activity of planning, organizing, motivating, and controlling resources, procedures and protocols to achieve specific goals in scientific or daily problems.
+
+--
+- what exactly do I want to accomplish?
+  - create internet/web based streams of income
+    i - sell breakfast order pickup services (delis)
+      - leverage delivery services APIs
+        - delivery.com
+        - grubhub
+        - taskrabbit
+    ii - sell advertising to/for hyper-local communities/businesses
+
+- how will a website help me reach my goals?
+  - move brick/mortar resources online (to help underserved communities leverage...)
+  - aggregate all the above
+  - promote community interaction at hyper-local level
+
+- what needs to be done, and in which order..?
+  i - ...
+    1 - test idea w deli.0
+      - finalize deli pickup setup/logistics (order/pay/pickup)
+        - assist w setup/logistics
+        - confirm finders fee w d.com
+        - confirm pay split per transaction (order, pickup, etc)
+      - determine pain points to remedy via add site
+    2 - sign up x # of delis to d.com for pickup beta
+        - loop 1(a)
+    3 - create add site mvp (order/pay/pickup vas)
+    4 - finalize add site mvp
+    5 - implement add site mvp w deli betas
+  ii - ...
+    1 - find advertisers (hyper local, online ..)
+
+//////////////////////////////////////////////////////////
+WEBSITE WORKING CHECKLIST
+- performance
+  http://www.webpagetest.org/
+  http://yslow.org/
+- server responsiveness
+  ping
+- check 404s
+- check expected behavior on all pages
+- consistant rendering across all browsers
+
+//////////////////////////////////////////////////////////
+https://developer.mozilla.org/en-US/Learn/What_is_accessibility
