@@ -1,7 +1,460 @@
+// Functions /////////////////////////////////////////////////////////
+// callbacks
+// https://github.com/maxogden/art-of-node#callbacks
+var myNumber = 1
+
+
+// the parameter this
+// .. in an in-line event handler
+<button onclick="alert(this.tagName.toLowerCase());">
+  Show this
+
+  <button onclick="alert((function(){return this}()));">
+    Show inner this
+  </button>
+</button>
+
+// ..as a DOM event handler
+// when called as a listener, turns the related element blue
+function bluify(e){
+  // always true
+  console.log(this === e.currentTarget);
+  // true when currentTarget and target are the same object
+  console.log(this === e.target);
+  this.style.backagroundColor = '#A5D9F3';
+}
+// get a list of every element in the document
+var elements = document.getElementsByTagName('*');
+
+// add bluify as a click listener so when the
+//element is clicked on, it turns blue
+for(var i=0; i<elements.length; i++){
+  elements[i].addEventListner('click', bluify, false);
+}
+
+// the bind method
+function f(){
+  return this.a;
+}
+
+var g = f.bind({a:"azerty"});
+console.log(g()); // azerty
+
+var o = {a:37, f:f, g:g};
+
+// call and apply
+function bar(){
+  console.log(Object.prototype.toString.call(this));
+}
+bar.call(7); // [object Number]
+///////////////
+function add(c,d){
+  return this.a + this.b + c + d;
+}
+
+var o = {a:1, b:3};
+
+add.call(o,5,7); // 1+3+5+7=16
+
+add.apply(o,[10,20]); // 1+3+10+20=34
+
+// .. this as a constructor
+function C(){
+  this.a = 37;
+}
+
+var o = new C();
+console.log(o.a); // logs 37
+
+function C2(){
+  this.a = 37;
+  return {a:38};
+}
+
+o = new C2();
+console.log(o.a); // logs 38
+
+// .. this w a getter or setter
+function modulus(){
+  return Math.sqrt(this.re * this.re + this.im * this.im);
+}
+
+var o = {
+  re: 1,
+  im: -1,
+  get phase(){
+    return Math.atan2(this.im, this.re);
+  }
+};
+Object.defineProperty(o, 'modulus', {
+  get: modulus, enumerable: true, configurable:true});
+
+console.log(o.phase, o.modulus); // logs -0.78 1.4142
+
+// this on the object's prototype chain
+var o = {
+  f: function(){
+    return this.a + this.b;
+  }
+};
+var p = Object.create(o);
+p.a = 1;
+p.b = 4;
+
+console.log(p.f()); // 5
+
+// as an object method
+var o = {a: 1};
+
+function g() {
+  return this;
+}
+o.b = {
+  g: 0, //independent,
+  prop: 42
+};
+console.log(o.b.g());
+
+/////////////
+var o = {prop: 37};
+
+function independent(){
+  return this.prop;
+}
+o.f = independent;
+console.log(o.f( ));
+
+/////////////
+var o = {
+  prop: 37,
+  f: function(){
+    return this.prop;
+  }
+};
+console.log(o.f()); // logs 37
+
+// function context
+function f1(){
+  // "use strict"; // see strict mode
+  return this;
+}
+f1() === window;
+
+// global context
+console.log(this.document === document); // true
+// in web browsers, the window obj is also the global obj:
+console.log(this === window); // true
+
+this.a = 37;
+console.log(window.a);
+
+
+// calling functions
+
+function factorial(n) {
+  if ((n == 0) || (n == 1))
+    return 1;
+  else
+    return (n * factorial(n - 1));
+}
+
+var a, b, c, d, e;
+
+// --
+console.log(square(5));
+/* .. */
+function square(n) { return n*n }
+// --
+square(5);
+
+// function expressions
+
+var myFunc;
+if (num == 0) {
+  myFunc = function(theObject) {
+    theObject.make = "toyota"
+  }
+}
+
+// --
+
+function map(f,a) {
+  var result = [], // create new array
+      i;
+  for (i = 0; i != a.length; i++)
+    result[i] = f(a[i]);
+  return result;
+}
+
+map(function(x) { return x * x * x }, [0, 1, 2, 5, 10]);
+// -- array.prototype.map()
+// var numbers = [1, 4, 9];
+// var roots = numbers.map(Math.sqrt);
+//--
+// var kvArray = [{key:1, value:10}, {key:2, value:20}, {key:3, value:30}];
+// var reformattedArray = kvArray.map(function(obj) {
+//   var rObj = {};
+//   rObj[obj.key] = obj.value;
+//   return rObj
+// });
+// --
+// var numbers = [1, 4, 9];
+// var doubles = numbers.map(function(num) {
+//   return num * 2;
+// });
+var map = Array.prototype.map;
+var a = map.call('hello world', function(x) {
+  return x.charCodeAt(0);
+ });
+// --
+function threeChars(value, index, str) {
+  return str.substring(index - 1, index + 2);
+}
+
+var word = "thursday";
+
+var result = [].map.call(word, threeChar);
+
+document.write(result);
+
+// --
+
+// var factorial = function fac(n) {
+//   return n < 2 ? 1 : n*fac(n - 1);
+// }
+
+// console.log(factorial(3));
+
+// // --
+// var square = function(number) {
+//   return number * number;
+// }
+// or
+// var square = function(number) { return number * number };
+
+// var x = square(4)
+
+// // --
+// function myFunc(theObject) {
+// //  theObject.make = "make1";
+//   theObject = {make: "make3", model: "model3", year: "year3"};
+// }
+
+// var mycar = {make: "make2", model: "model2", year: "year2"};
+// var x, y;
+
+// x = mycar.make; // x gets the value "make2"
+
+// myFunc(mycar);
+// y = mycar.make; // y gets "make1" .. changed by the function
+
+// //--
+// function square(numner) {
+//   return number * number;
+// }
 
 // Loops and iteration /////////////////////////////////////////////////////////
+// > loop mechanisms offer different ways to determine the start and end points
+// of the loop
 
+// for, do...while, while, label, break, continue, for...in, for...of
 
+// for...of statement
+// > experimental, part of ECMAScript (harmony) proposal, check compatibility table
+
+// for (variable of object) {
+//  statement
+// }
+
+// let arr = [3, 5, 7];
+// arr.foo = "hello";
+
+// for (let i in arr) {
+//   console.log(i); // log "0", "1", "2", "foo"
+// }
+
+// for (let i of arr) {
+//   console.log(i); // logs "3", "5", "7"
+// }
+
+// --
+// for...in statement
+// iterates a specified variable over all the properties of an objec
+
+// for (variable in object) {
+//  statements
+// }
+
+// var car = {
+//   make: "Ford",
+//   model: "Mustang"
+// }
+
+// function dump_props(obj, obj_name) {
+//   var result = "";
+//   for (var i in obj) {
+//     result += obj_name + "." + i + " = " + obj[i] + "<br>";
+//   }
+//   result += "<hr>";
+//   return result;
+// }
+
+// dump_props(car, "car");
+
+// // > for an object car w properties make and model, result would be:
+// car.make = Ford
+// car.model = Mustang
+
+// continue statement
+// > restart a while, do-while, for or label statement
+
+// continue;
+// continue label;
+
+// var i = 0, j = 8;
+
+// checkiandj:
+// while (i < 4) {
+//   console.log(i);
+//   i += 1;
+//   checkj:
+//   while (j > 4) {
+//     console.log(j);
+//     j -= 1;
+//     if ((j % 2) == 0) {
+//       continue checkj; // or continue checkiandj;
+//     }
+//     console.log(j + " is odd.");
+//   }
+//   console.log("i = " + i);
+//   console.log("j = " + j);
+// }
+
+// --
+
+// var i = 0;
+// var n = 0;
+// while (i < 3) {
+//   i++;
+//   if (i == 2) {
+//     continue;
+//   }
+//   n += i;
+// }
+// --
+// var x = 0;
+// var z = 0;
+// labelCancelLoops: while (true) {
+//   console.log("Outer loops: " + x);
+//   x += 1;
+//   z = 1;
+//   while (true) {
+//     console.log("Inner loops: " + z);
+//     z += 1;
+//     if (z === 10 && x === 10) {
+//       break labelCancelLoops;
+//     } else if (z === 10) {
+//       break;
+//     }
+//   }
+// }
+
+// --
+// break statement
+// > to terminate a loop, switch, or in conjunction w a label statement
+
+// break;
+// break label;
+
+// var a = "areallylongvar"
+// var theValue = "y"
+
+// for (var i = 0; i < a.length; i++) {
+//   if (a[i] == theValue) {
+//     break;
+//   }
+// }
+
+// label statement
+// > statement w/ identifier to refer to elsewhere in code
+
+// label :
+//    statement
+
+// markLoop:
+// while (theMark == true) {
+//   doSomething();
+// }
+
+// while statement
+// > executes statement(s) as long as specified condition evals to true
+// > condition is checkes before statement in the loop are executed
+
+// while (condition)
+//   statement
+
+// var n = 0;
+// var x = 0;
+// while (n < 3) {
+//   n++;
+//   x += n;
+// }
+
+// do...while statement //
+// > statement(s) repeat until a specified condition evaluates to false
+// > condition is checked at the end of every execution
+
+// do
+//   statement
+// while (condition);
+
+// var i = 0;
+
+// do {
+//   i+=1;
+//   console.log(i);
+// } while (i < 5);
+
+// for statement //
+// for ([initialExpression]; [condition]; [incrementExpression])
+//  statement
+
+// <form name="selectForm">
+//   <p>
+//     <label for="musicTypes">choose some music types, then click...</label>
+//     <select id="musicTypes" name="musicTypes" multiple="multiple">
+//       <option selected="selected">R&B</option>
+//       <option>jazz</option>
+//       <option>blues</option>
+//       <option>new age</option>
+//       <option>classical</option>
+//       <option>opera</option>
+//     </select>
+//   </p>
+//   <p><input id="btn" type="button" value="how many..?" /></p>
+// </form>
+
+// <script>
+// function howMany(selectObject)  {
+//   var numberSelected = 0;
+//   for (var i = 0; i < selectObject.options.length; i++) {
+//     if (selectObject.options[i].selected) {
+//       numberSelected++
+//     }
+//   }
+//   return numberSelected;
+// }
+
+// var btn = document.getElementById("btn");
+// btn.addEventListener("click", function() {
+//   alert('Number of options..' + howMany(document.selectForm.musicTypes))
+// });
+// </script>
+
+// var step;
+// for (step = 0; step < 5; step++) {
+//   console.log('walking east 1 step')
+// }
 
 // Control flow and error handling /////////////////////////////////////////////
 
