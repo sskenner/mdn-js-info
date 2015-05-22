@@ -1,8 +1,381 @@
 // Functions /////////////////////////////////////////////////////////
-// callbacks
-// https://github.com/maxogden/art-of-node#callbacks
-var myNumber = 1
 
+// callbacks
+//a function to be executed after another function is executed
+// > what is a callback: bc JS in the browser is single threaded, when a call is made to an entity external to JS code, the code cannot usully afford to wait for a reply which may be seconds in coming.. Thus, callbacks, pass along with a call to the server a JS f()that the server should invoke whenever the result is ready
+
+// http://www.mosync.com/docs/sdk/js/guides/basic/using-javascript-callbacks/index.html
+// .. simple callback
+target.addEventListener(event-type, callback);
+/////////////
+var myButton = document.getNativeElementById("myButton");
+myButton.addEventListner("Clicked",
+  function() {
+    alert("The button was clicked");
+  });
+// .. standalone callback functions
+// define the callback f()
+function buttonCallback()
+{
+  alert("a button was clicked");
+}
+
+// define two event listeners
+myButton1.addEventListener("Clicked", buttonCallback);
+myButton2.addEventListener("Clicked", buttonCallback);
+
+// .. wormhole callback function
+// initializer of the accelerometer sensor
+var accelerometer = new SensotConnection("Accelerometer");
+
+// add an event listener to the sensor and identify a callback function
+accelerometer.addEventListener("onsensordata", updateAccelerometer);
+
+// start monitoring the accelerometer every 1 second
+accelerometer.startWatch({interval:1000});
+
+// define the callback function
+function updateAccelerometer(sensorData)
+{
+  console.log("X:" + sensorData.data.x);
+  console.log("Y:" + sensorData.data.y);
+  console.log("Z:" + sensorData.data.z);
+}
+
+// defining functions w callback arguments
+//--server side
+function randomGenerator(min, max, callback)
+{
+  var myNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+  setTimeout(function() { callback(myNumber); }, 500);
+}
+//--client side
+randomGenerator( 5, 15, function(num) {
+  console.log("Your number is " + num);
+});
+
+// parallel operations via callbacks
+$("element").fadeIn( 2000, function() {
+  alert("Fade in complete");
+});
+
+//closures .. a f() that remembers refernces to variable outside of it's local scope .. i.e. variables that are neither parameters of the function, nor local variables defined inside the f() with var keyword, but vars defined outside of the functions, e.g. global vars or local vars defined in the containing f()
+// global var
+var name = "Chris";
+
+function lottery() {
+  // local vars
+  var win = ", u win!";
+  var lose = "better luck next time ";
+
+  // the f() in the 3rd parameter is a closure that refers to the variables name, win, lose
+  randomGenerator( 0, 100, function(num) {
+    if (num > 50) {
+      //alert(name + win);
+      console.log(name + win);
+    } else {
+      //alert(name + lose);
+      console.log(name + lose);
+    }
+  });
+}
+
+// http://dreamerslab.com/blog/en/javascript-callbacks/
+// normally...
+function do_a(){
+  console.log("'do_a': this comes out first");
+}
+function do_b(){
+  console.log("'do_b': this comes out later");
+}
+
+do_a();
+do_b();
+// bc js is an event driven language, if do_a takes longer than do_b, the result
+//of do_b comes out first than do_a
+function do_a(){
+  // simulate a time consuming function
+  setTimeout(function(){
+    console.log( "'do_a': this takes longer than 'do_b'");
+  }, 1000);
+}
+function do_b(){
+  console.log( "'do_b': this is supposed to come out after 'do_a' but it comes out before 'do_a' ");
+}
+do_a();
+do_b();
+////////////
+//..different ways
+function basic( callback ) {
+  console.log( 'do something here' );
+
+  var result = "i am result of 'do something' to be passed to callback";
+
+  // if callback exists execute it
+  callback && callback( result );
+}
+
+function callbacks_with_call( arg1, arg2, callback ) {
+  console.log( 'do something here' );
+
+  var result1 = arg1.replace( 'argument', 'result' ), // ?? replace()
+      result2 = arg2.replace( 'argument', 'result' );
+
+  this.data = "some data that can be used for callback f() w 'this' keyword";
+
+  // if callback exists execute it
+  callback && callback.call( this, result1, result2 );
+}
+// this is similar to 'callbacks_with_call'.. the only difference is we 'apply'
+// instead of 'call' so we need to pass arguments as an array
+function callbacks_with_apply( arg1, arg2, callback ) {
+  console.log( 'do something here' );
+
+  var result1 = arg1.replace( 'argument', 'result' ),
+      result2 = arg2.replace( 'argument', 'result' );
+
+  this.data = "some data that can be used for callback f() w 'this' keyword";
+
+  // if callback exist execute it
+  callback && callback.apply( this, [ result1, result2 ] );
+}
+
+basic( function( result ) {
+        console.log( "this callback is going to print out the result from the f() 'basic'" );
+        console.log( result );
+       }
+);
+
+console.log( '------------------------------' );
+
+( function() {
+    var arg1 = 'i am arg1',
+        arg2 = 'i am arg2';
+
+    callbacks_with_call( arg1, arg2,
+                         function( result1, result2 ) {
+                            console.log( "this callback is going to log the results from the f() 'callbacks_with_call'" );
+                            console.log( 'result1: ' + result1 );
+                            console.log( 'result2: ' + result2 );
+                            console.log( "data from 'callbacks_with_call': " + this.data );
+                          }
+    );
+  }
+)();
+
+console.log( '------------------------------' );
+
+( function() {
+  var arg1 = 'i am arg1',
+      arg2 = 'i am arg2';
+
+  callbacks_with_apply( arg1, arg2,
+                        function( result1, result2 ) {
+                          console.log( "this callback is going to log the results from the f() 'callbacks_with_apply'" );
+                          console.log( 'result1: ' + result1 );
+                          console.log( 'result2: ' + result2 );
+                          console.log( "data from 'callbacks_with_apply': " + this.data );
+                                    }
+  );
+  }
+)();
+
+// http://recurial.com/programming/understanding-callback-functions-in-javascript/
+function some_function(a1,a2,callback){
+  var my_number = Math.ceil(Math.random()*(a1-a2)+a2);
+  callback(my_number);
+}
+some_function(5,15, function(num){
+  console.log("callback called!" + num);
+});
+////////////
+var func_multiply = new Function("a1","a2","return a1*a2;");
+func_multiply(5,10);
+
+// closures
+// node.js function scope
+var name = 'ben';
+// above equals to the following
+(function(global){
+  var name = 'ben';
+})(global);
+
+global.name = 'ben';
+
+// ..in oop can store data to 'higher level'(outer scope) vars and reuse it
+function photo(){
+  var name = 'ben';
+
+  return{
+    say_my_name: function(){
+      console.log( name );
+    },
+
+    rename : function( new_name ){
+      name = new_name;
+    }
+  };
+}
+
+var pic = new photo;
+
+pic.say_my_name();
+
+pic.rename( 'bibi' );
+
+pic.say_my_name();
+
+//////////////////
+// http://dreamerslab.com/blog/en/javascript-function-scopes-and-closures/
+function outer_scope(){
+  var a = "i am 'a' from outer scope",
+      b = "i am 'b' from outer scope";
+  console.log('logging from outer_scope b4 inner scope func declaration');
+  console.log('a:' + a);
+  console.log('b:' + b);
+  console.log('------------------------');
+
+  function inner_scope_1(){
+    console.log('logging from inside funct inner_scope_1 b4 var declar');
+    console.log('a:' + a);
+    a = "overwrite the outer_scope 'a'";
+    console.log('logging from inside function inner_scope_1 after var declar');
+    console.log('a:' + a);
+    console.log('------------------------');
+  }
+
+  function inner_scope_2(){
+    console.log('logging from inside funct inner_scope_2 b4 var declar');
+    console.log('b:' + b);
+    var b = "i will not overwrite the outer_scope 'b'";
+    console.log('logging from inside function inner_scope_2 after var declar');
+    console.log('b:' + b);
+    console.log('------------------------');
+  }
+  inner_scope_1();
+  inner_scope_2();
+
+  a = "i will be the new 'a'";
+  b = "i will be the new 'b'";
+
+  console.log('logging from outer scope after inner scope executed');
+  console.log('a: ' + a);
+  console.log('b: ' + b);
+  console.log('------------------------');
+}
+outer_scope();
+
+//// .. IIFE (immediately invoked function expression)
+function celebrityIDCreator(theCelebrities){
+  var i;
+  var uniqueID = 100;
+  for(i = 0; i < theCelebrities.length; i++){
+    theCelebrities[i]["id"] = function(j){ // j parametric val is the i passed in
+                                          //on invocation of this IIFE
+      //return uniqueID + i;
+      return function(){
+        return uniqueID + j; // each iteration of loop passes current val of i into
+                            //this IIFE and it saves the correct val to the array
+      }() // adding () at the end of funct executes it immediately returning just
+          //just the value of uniqueID + j, instead of returning a function
+    }(i) // immediately invoke the function passing the i var as a param
+  }
+  return theCelebrities;
+}
+
+var actionCelebs = [{name:"Stallone", id:0}, {name:"Cruise", id:0}, {name:"Willis", id:0}]
+
+var createdIdForActionCelebs = celebrityIDCreator(actionCelebs);
+
+var cruiseID = createdIdForActionCelebs[1];
+var willisID = createdIdForActionCelebs[2];
+var stalloneID = createdIdForActionCelebs[0];
+console.log(cruiseID.id()); // 101
+console.log(willisID.id()); // 102
+console.log(stalloneID.id()); // 103
+////////
+//// .. gone awry
+function celebrityIDCreator(theCelebrities){
+  var i;
+  var uniqueID = 100;
+  for(i = 0; i < theCelebrities.length; i++){
+    theCelebrities[i]["id"] = function(){
+      return uniqueID + i;
+    }
+  }
+  return theCelebrities;
+}
+
+var actionCelebs = [{name:"Stallone", id:0}, {name:"Cruise", id:0}, {name:"Willis", id:0}]
+
+var createdIdForActionCelebs = celebrityIDCreator(actionCelebs);
+
+var cruiseID = createdIdForActionCelebs[0];
+var willisID = createdIdForActionCelebs[0];
+var stalloneID = createdIdForActionCelebs[0];
+console.log(cruiseID.id());
+console.log(willisID.id());
+console.log(stalloneID.id()); // 103
+
+//// .. store references to outer functs vars
+function celebrityID(){
+  var celebrityID = 999;
+  // we're returning an obj w some inner f()s..all inner
+  //f()s hv access to outer f()s vars
+  return{
+    getID: function(){
+      // this inner f() will return UPDATED celebID var..
+      //will return the current val of celebID, even after
+      //the changeTheID f() changes it
+      return celebrityID;
+    },
+    setID: function(theNewID){
+      // inner f() will change outer f()s var anytime
+      celebrityID = theNewID;
+    }
+  }
+}
+
+var mjID = celebrityID(); // celebID outer f() has returned
+mjID.getID(); // 999
+mjID.setID(567); // changes outer f()s var
+mjID.getID(); // 567: returns the updated celebID var
+////////////
+function celebrityName(firstName){
+  var nameIntro = "This celebrity is ";
+  // inner f() has access to outer f()'s vars, incl params
+  function lastName(theLastName){
+    return nameIntro+firstName+" "+theLastName;
+  }
+  return lastName;
+}
+var mjName = celebrityName("Michael");
+mjName("Jackson");
+
+//////////////
+$(function(){
+  var selections = [];
+  $(".niners").click(function() {
+    selections.push(this.prop("name"));
+  });
+});
+////////////
+function showName(firstName, lastName){
+  var nameIntro = "ur name is ";
+  // inner f() has access to outer f()'s vars, incl params
+  function makeFullName(){
+    return nameIntro + firstName + " " + lastName;
+  }
+  return makeFullName();
+}
+showName("Michael","Jackson");
+
+// https://github.com/maxogden/art-of-node#callbacks
+////////////////
+var myNumber = 1
+function addOne() { myNumber++ } // define function
+addOne() // run the function
+console.log(myNumber)
 
 // the parameter this
 // .. in an in-line event handler
